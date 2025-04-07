@@ -1,4 +1,3 @@
-const router = require("express").Router();
 const clothingItem = require("../models/clothingItem");
 const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require("../utils/errors");
 
@@ -16,7 +15,7 @@ const getClothingItems = (req, res) => {
 
 const addClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  const _id = req.user._id;
+  const { _id } = req.user._id;
   clothingItem
     .create({ name, weather, imageUrl, owner: _id })
     .then((item) => {
@@ -43,9 +42,8 @@ const deleteClothingItem = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFound") {
         return NOT_FOUND();
-      } else {
-        return SERVER_ERROR();
       }
+      return SERVER_ERROR();
     });
 };
 
@@ -63,9 +61,8 @@ const likeItem = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFound") {
         return NOT_FOUND();
-      } else {
-        return SERVER_ERROR();
       }
+      return SERVER_ERROR();
     });
 };
 
@@ -83,9 +80,8 @@ const unlikeItem = (req, res) => {
       console.error(err);
       if (err.name === "DocumentNotFound") {
         return NOT_FOUND();
-      } else {
-        return SERVER_ERROR();
       }
+      return SERVER_ERROR();
     });
 };
 
