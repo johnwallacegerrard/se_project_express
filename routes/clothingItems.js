@@ -9,8 +9,8 @@ const {
 
 router.get("/", getClothingItems);
 router.post("/", addClothingItem);
-router.delete("/:itemId", deleteClothingItem);
-router.put("/:itemId/likes", likeItem);
-router.delete("/:itemId/likes", unlikeItem);
+router.delete("/:id", deleteClothingItem);
+router.put("/:id/likes", likeItem); // req.params = {id: 1fj82j8f3j928f3j}
+router.delete("/:id/likes", unlikeItem);
 
 module.exports = router;

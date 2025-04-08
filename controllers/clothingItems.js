@@ -31,57 +31,66 @@ const addClothingItem = (req, res) => {
 };
 
 const deleteClothingItem = (req, res) => {
-  const { itemId } = req.params;
+  const { id } = req.params;
   clothingItem
-    .findByIdAndDelete({ itemId })
+    .findByIdAndDelete(id)
     .orFail()
     .then((item) => {
       res.status(200).send(item);
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFound") {
-        return NOT_FOUND();
+      if (err.name === "DocumentNotFoundError") {
+        return NOT_FOUND(err, res);
       }
-      return SERVER_ERROR();
+      if (err.name === "CastError" || err.name === "ValidationError") {
+        return BAD_REQUEST(err, res);
+      }
+      return SERVER_ERROR(err, res);
     });
 };
 
 const likeItem = (req, res) => {
+  const { id } = req.params;
   clothingItem
     .findByIdAndUpdate(
-      req.params.itemId,
+      id,
       { $addToSet: { likes: req.user._id } },
       { new: true }
     )
+    .orFail()
     .then((item) => {
       res.status(200).send(item);
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFound") {
-        return NOT_FOUND();
+      if (err.name === "DocumentNotFoundError") {
+        return NOT_FOUND(err, res);
       }
-      return SERVER_ERROR();
+      if (err.name === "CastError" || err.name === "ValidationError") {
+        return BAD_REQUEST(err, res);
+      }
+      return SERVER_ERROR(err, res);
     });
 };
 
 const unlikeItem = (req, res) => {
+  const { id } = req.params;
   clothingItem
-    .findByIdAndUpdate(
-      req.params.itemId,
-      { $pull: { likes: req.user._id } },
-      { new: true }
-    )
+    .findByIdAndUpdate(id, { $pull: { likes: req.user._id } }, { new: true })
+    .orFail()
     .then((item) => {
       res.status(200).send(item);
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFound") {
-        return NOT_FOUND();
+      if (err.name === "DocumentNotFoundError") {
+        return NOT_FOUND(err, res);
       }
-      return SERVER_ERROR();
+      if (err.name === "CastError" || err.name === "ValidationError") {
+        return BAD_REQUEST(err, res);
+      }
+      return SERVER_ERROR(err, res);
     });
 };
 
