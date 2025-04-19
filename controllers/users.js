@@ -1,39 +1,47 @@
 const user = require("../models/user");
-const { BAD_REQUEST, NOT_FOUND, SERVER_ERROR } = require("../utils/errors");
 
-const getUsers = (req, res) => {
-  user
-    .find({})
-    .then((users) => {
-      res.status(200).send(users);
-    })
-    .catch((err) => {
-      console.error(err);
-      return SERVER_ERROR(err, res);
-    });
-};
+const bcrypt = require("bcryptjs");
+
+const jwt = require("jsonwebtoken");
+
+const {
+  DUPLICATE_EMAIL,
+  BAD_REQUEST,
+  NOT_FOUND,
+  SERVER_ERROR,
+  UNAUTHORIZED_REQUEST,
+} = require("../utils/errors");
+const JWT_SECRET = require("../utils/config");
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
-  console.log("name", name);
-  user
-    .create({ name, avatar })
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) =>
+      user.create({ name, avatar, email: req.body.email, password: hash })
+    )
+
     .then((data) => {
-      res.status(200).send(data);
+      const userData = data.toObject();
+      delete userData.password;
+      res.status(201).send(userData);
     })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
         return BAD_REQUEST(err, res);
       }
+      if (err.code === 11000) {
+        return DUPLICATE_EMAIL(err, res);
+      }
       return SERVER_ERROR(err, res);
     });
 };
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  const { _id } = req.user;
   user
-    .findById(userId)
+    .findById(_id)
     .orFail()
     .then((data) => {
       res.status(200).send(data);
@@ -50,4 +58,50 @@ const getUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getUser };
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return BAD_REQUEST({ message: "Email and password are required" }, res);
+  }
+
+  return user
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      return UNAUTHORIZED_REQUEST(err, res);
+    });
+};
+
+const updateProfile = (req, res) => {
+  const { name, avatar } = req.body;
+  const { _id } = req.user;
+  user
+    .findByIdAndUpdate(
+      _id,
+      {
+        $set: {
+          name: name,
+          avatar: avatar,
+        },
+      },
+      { new: true }
+    )
+    .then((data) => res.status(200).send(data))
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return BAD_REQUEST(err, res);
+      }
+      if (err.name === "CastError" || err.name === "DocumentNotFoundError") {
+        return NOT_FOUND(err, res);
+      }
+      return SERVER_ERROR(err, res);
+    });
+};
+
+module.exports = { getCurrentUser, createUser, login, updateProfile };
