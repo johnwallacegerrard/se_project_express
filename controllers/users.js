@@ -74,7 +74,10 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      return UNAUTHORIZED_REQUEST(err, res);
+      if (err.message === "Incorrect email or password") {
+        return UNAUTHORIZED_REQUEST(err, res);
+      }
+      return SERVER_ERROR(err, res);
     });
 };
 
@@ -90,7 +93,7 @@ const updateProfile = (req, res) => {
           avatar: avatar,
         },
       },
-      { new: true }
+      { new: true, runValidators: true }
     )
     .then((data) => res.status(200).send(data))
     .catch((err) => {
