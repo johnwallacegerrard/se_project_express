@@ -3,7 +3,6 @@ const {
   SERVER_ERROR,
   BAD_REQUEST,
   NOT_FOUND,
-  UNAUTHORIZED_REQUEST,
   FORBIDDEN_REQUEST,
 } = require("../utils/errors");
 
@@ -47,8 +46,8 @@ const deleteClothingItem = (req, res) => {
         clothingItem
           .findByIdAndDelete(id)
           .orFail()
-          .then((item) => {
-            res.status(200).send(item);
+          .then((data) => {
+            res.status(200).send(data);
           })
           .catch((err) => {
             if (err.name === "DocumentNotFoundError") {

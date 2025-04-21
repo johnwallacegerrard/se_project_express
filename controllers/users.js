@@ -1,8 +1,8 @@
-const user = require("../models/user");
-
 const bcrypt = require("bcryptjs");
 
 const jwt = require("jsonwebtoken");
+
+const user = require("../models/user");
 
 const {
   DUPLICATE_EMAIL,
@@ -89,8 +89,8 @@ const updateProfile = (req, res) => {
       _id,
       {
         $set: {
-          name: name,
-          avatar: avatar,
+          name,
+          avatar,
         },
       },
       { new: true, runValidators: true }
