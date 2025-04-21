@@ -46,9 +46,7 @@ const deleteClothingItem = (req, res) => {
         clothingItem
           .findByIdAndDelete(id)
           .orFail()
-          .then((data) => {
-            return res.status(200).send(data);
-          })
+          .then((data) => res.status(200).send(data))
           .catch((err) => {
             if (err.name === "DocumentNotFoundError") {
               return NOT_FOUND(err, res);
@@ -56,10 +54,17 @@ const deleteClothingItem = (req, res) => {
             if (err.name === "CastError") {
               return BAD_REQUEST(err, res);
             }
+            if (err.name === "InsufficientPermissions") {
+              return FORBIDDEN_REQUEST(
+                {
+                  message:
+                    "You cannot delete another users item without admin permissions",
+                },
+                res
+              );
+            }
             return SERVER_ERROR(err, res);
           });
-      } else {
-        return FORBIDDEN_REQUEST({}, res);
       }
     })
     .catch((err) => {
