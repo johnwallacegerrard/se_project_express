@@ -20,7 +20,7 @@ const getClothingItems = (req, res) => {
 
 const addClothingItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  const _id = req.user._id;
+  const { _id } = req.user;
   clothingItem
     .create({ name, weather, imageUrl, owner: _id })
     .then((item) => {
@@ -47,7 +47,7 @@ const deleteClothingItem = (req, res) => {
           .findByIdAndDelete(id)
           .orFail()
           .then((data) => {
-            res.status(200).send(data);
+            return res.status(200).send(data);
           })
           .catch((err) => {
             if (err.name === "DocumentNotFoundError") {
