@@ -40,6 +40,7 @@ const createUser = (req, res) => {
 
 const getCurrentUser = (req, res) => {
   const { _id } = req.user;
+
   user
     .findById(_id)
     .orFail()
