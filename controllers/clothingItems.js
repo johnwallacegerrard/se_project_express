@@ -1,3 +1,4 @@
+const BadRequestError = require("../errors/BadRequestError");
 const clothingItem = require("../models/clothingItem");
 const {
   SERVER_ERROR,
@@ -18,7 +19,7 @@ const getClothingItems = (req, res) => {
     });
 };
 
-const addClothingItem = (req, res) => {
+const addClothingItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const { _id } = req.user;
   clothingItem
@@ -29,9 +30,12 @@ const addClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return BAD_REQUEST(err, res);
+        return next(new BadRequestError());
+
+        //return BAD_REQUEST(err, res);
       }
-      return SERVER_ERROR(err, res);
+      //return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 

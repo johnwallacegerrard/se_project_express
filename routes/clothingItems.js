@@ -10,6 +10,8 @@ const {
   unlikeItem,
 } = require("../controllers/clothingItems");
 
+// post to localhost:3001/items
+
 router.get("/", getClothingItems);
 
 router.use(auth);
