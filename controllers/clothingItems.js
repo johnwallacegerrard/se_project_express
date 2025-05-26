@@ -1,13 +1,11 @@
-const BadRequestError = require("../errors/BadRequestError");
 const clothingItem = require("../models/clothingItem");
-const {
-  SERVER_ERROR,
-  BAD_REQUEST,
-  NOT_FOUND,
-  FORBIDDEN_REQUEST,
-} = require("../utils/errors");
+const BadRequestError = require("../errors/BadRequestError");
+const UnauthorizedError = require("../errors/UnauthorizedError");
+const ForbiddenError = require("../errors/ForbiddenError");
+const NotFoundError = require("../errors/NotFoundError");
+const ConflictError = require("../errors/ConflictError");
 
-const getClothingItems = (req, res) => {
+const getClothingItems = (req, res, next) => {
   clothingItem
     .find({})
     .then((items) => {
@@ -15,7 +13,7 @@ const getClothingItems = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 
@@ -28,18 +26,16 @@ const addClothingItem = (req, res, next) => {
       res.status(200).send(item);
     })
     .catch((err) => {
-      console.error(err);
-      if (err.name === "ValidationError") {
+      // console.error(err);
+      if (err.name === "ValidationError" || err.name === "CastError") {
         return next(new BadRequestError());
-
-        //return BAD_REQUEST(err, res);
       }
-      //return SERVER_ERROR(err, res);
+
       return next(err);
     });
 };
 
-const deleteClothingItem = (req, res) => {
+const deleteClothingItem = (req, res, next) => {
   const { id } = req.params;
 
   clothingItem
@@ -53,36 +49,32 @@ const deleteClothingItem = (req, res) => {
           .then((data) => res.status(200).send(data))
           .catch((err) => {
             if (err.name === "DocumentNotFoundError") {
-              return NOT_FOUND(err, res);
+              return next(new NotFoundError());
             }
             if (err.name === "CastError") {
-              return BAD_REQUEST(err, res);
+              return next(new BadRequestError());
             }
             if (err.name === "InsufficientPermissions") {
-              return FORBIDDEN_REQUEST(
-                {
-                  message:
-                    "You cannot delete another users item without admin permissions",
-                },
-                res
+              return next(
+                new ForbiddenError("You cannot delete another users item")
               );
             }
-            return SERVER_ERROR(err, res);
+            return next(err);
           });
       }
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return NOT_FOUND(err, res);
+        return next(new NotFoundError());
       }
       if (err.name === "CastError") {
-        return BAD_REQUEST(err, res);
+        return next(new BadRequestError());
       }
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { id } = req.params;
   clothingItem
     .findByIdAndUpdate(
@@ -97,16 +89,13 @@ const likeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return NOT_FOUND(err, res);
+        return next(new NotFoundError());
       }
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        return BAD_REQUEST(err, res);
-      }
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 
-const unlikeItem = (req, res) => {
+const unlikeItem = (req, res, next) => {
   const { id } = req.params;
   clothingItem
     .findByIdAndUpdate(id, { $pull: { likes: req.user._id } }, { new: true })
@@ -117,12 +106,9 @@ const unlikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return NOT_FOUND(err, res);
+        return next(new NotFoundError());
       }
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        return BAD_REQUEST(err, res);
-      }
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 

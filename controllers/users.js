@@ -4,16 +4,19 @@ const jwt = require("jsonwebtoken");
 
 const user = require("../models/user");
 
-const {
-  DUPLICATE_EMAIL,
-  BAD_REQUEST,
-  NOT_FOUND,
-  SERVER_ERROR,
-  UNAUTHORIZED_REQUEST,
-} = require("../utils/errors");
+const BadRequestError = require("../errors/BadRequestError");
+
+const UnauthorizedError = require("../errors/UnauthorizedError");
+
+const ForbiddenError = require("../errors/ForbiddenError");
+
+const NotFoundError = require("../errors/NotFoundError");
+
+const ConflictError = require("../errors/ConflictError");
+
 const JWT_SECRET = require("../utils/config");
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar } = req.body;
   bcrypt
     .hash(req.body.password, 10)
@@ -29,16 +32,16 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return BAD_REQUEST(err, res);
+        return next(new BadRequestError());
       }
       if (err.code === 11000) {
-        return DUPLICATE_EMAIL(err, res);
+        return next(new ConflictError("A user with that email already exists"));
       }
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
 
   user
@@ -50,20 +53,20 @@ const getCurrentUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return BAD_REQUEST(err, res);
+        return next(new BadRequestError());
       }
       if (err.name === "DocumentNotFoundError") {
-        return NOT_FOUND(err, res);
+        return next(new NotFoundError());
       }
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return BAD_REQUEST({ message: "Email and password are required" }, res);
+    return next(new BadRequestError("Username and password are required"));
   }
 
   return user
@@ -76,13 +79,13 @@ const login = (req, res) => {
     })
     .catch((err) => {
       if (err.message === "Incorrect email or password") {
-        return UNAUTHORIZED_REQUEST(err, res);
+        return next(new UnauthorizedError());
       }
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, avatar } = req.body;
   const { _id } = req.user;
   user
@@ -99,12 +102,12 @@ const updateProfile = (req, res) => {
     .then((data) => res.status(200).send(data))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return BAD_REQUEST(err, res);
+        return next(new BadRequestError());
       }
       if (err.name === "CastError" || err.name === "DocumentNotFoundError") {
-        return NOT_FOUND(err, res);
+        return next(new NotFoundError());
       }
-      return SERVER_ERROR(err, res);
+      return next(err);
     });
 };
 
