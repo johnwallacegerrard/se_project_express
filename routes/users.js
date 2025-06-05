@@ -1,5 +1,10 @@
 const router = require("express").Router();
 
+const {
+  validateSignUpBody,
+  validateSignInBody,
+} = require("../middleware/validation");
+
 const auth = require("../middleware/auth");
 
 const {
@@ -9,8 +14,8 @@ const {
   updateProfile,
 } = require("../controllers/users");
 
-router.post("/signin", login);
-router.post("/signup", createUser);
+router.post("/signin", validateSignInBody, login);
+router.post("/signup", validateSignUpBody, createUser);
 
 router.get("/users/me", auth, getCurrentUser);
 router.patch("/users/me", auth, updateProfile);

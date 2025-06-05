@@ -10,15 +10,15 @@ const {
   unlikeItem,
 } = require("../controllers/clothingItems");
 
-// post to localhost:3001/items
+const { validateCardBody, validateId } = require("../middleware/validation");
 
 router.get("/", getClothingItems);
 
 router.use(auth);
 
-router.post("/", addClothingItem);
-router.delete("/:id", deleteClothingItem);
-router.put("/:id/likes", likeItem); // req.params = {id: 1fj82j8f3j928f3j}
-router.delete("/:id/likes", unlikeItem);
+router.post("/", validateCardBody, addClothingItem);
+router.delete("/:id", validateId, deleteClothingItem);
+router.put("/:id/likes", validateId, likeItem);
+router.delete("/:id/likes", validateId, unlikeItem);
 
 module.exports = router;
