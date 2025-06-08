@@ -28,6 +28,11 @@ app.listen(PORT, () => {
 mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db");
 
 app.use(requestLogger);
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 app.use("/", mainRouter);
 ap.use(errorLogger);
 app.use(errors());
