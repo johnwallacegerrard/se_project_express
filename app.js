@@ -14,7 +14,7 @@ const errorHandler = require("./middleware/error-handler");
 
 const { errors } = require("celebrate");
 
-const { requestLogger, errorLogger } = require("./middleware/logger");
+const { requestLogger, errorLogger } = require("./middleware/Logger");
 
 const { PORT = 3001 } = process.env;
 
