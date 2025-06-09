@@ -40,6 +40,6 @@ app.get("/crash-test", () => {
   }, 0);
 });
 app.use("/", mainRouter);
-ap.use(errorLogger);
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
