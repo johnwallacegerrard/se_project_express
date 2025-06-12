@@ -20,7 +20,7 @@ const { PORT = 3001 } = process.env;
 
 app.use(
   cors({
-    origin: "https://w-t-w-r.strangled.net",
+    origin: ["https://w-t-w-r.strangled.net", "http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
