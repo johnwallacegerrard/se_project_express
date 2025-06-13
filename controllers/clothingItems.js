@@ -28,7 +28,7 @@ const addClothingItem = (req, res, next) => {
     .catch((err) => {
       // console.error(err);
       if (err.name === "ValidationError" || err.name === "CastError") {
-        return next(new BadRequestError());
+        return next(new BadRequestError("Invalid data"));
       }
 
       return next(err);
@@ -49,10 +49,10 @@ const deleteClothingItem = (req, res, next) => {
           .then((data) => res.status(200).send(data))
           .catch((err) => {
             if (err.name === "DocumentNotFoundError") {
-              return next(new NotFoundError());
+              return next(new NotFoundError("Not found"));
             }
             if (err.name === "CastError") {
-              return next(new BadRequestError());
+              return next(new BadRequestError("Invalid data"));
             }
             if (err.name === "InsufficientPermissions") {
               return next(
@@ -61,6 +61,10 @@ const deleteClothingItem = (req, res, next) => {
             }
             return next(err);
           });
+      } else {
+        return next(
+          new ForbiddenError("You cannot deleter another users item")
+        );
       }
     })
     .catch((err) => {

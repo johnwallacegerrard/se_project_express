@@ -8,7 +8,7 @@ const BadRequestError = require("../errors/BadRequestError");
 
 const UnauthorizedError = require("../errors/UnauthorizedError");
 
-const ForbiddenError = require("../errors/ForbiddenError");
+
 
 const NotFoundError = require("../errors/NotFoundError");
 
@@ -32,7 +32,7 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return next(new BadRequestError());
+        return next(new BadRequestError("Invalid data"));
       }
       if (err.code === 11000) {
         return next(new ConflictError("A user with that email already exists"));
@@ -53,10 +53,10 @@ const getCurrentUser = (req, res, next) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return next(new BadRequestError());
+        return next(new BadRequestError("Invalid data"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return next(new NotFoundError());
+        return next(new NotFoundError("Not found"));
       }
       return next(err);
     });
@@ -79,7 +79,7 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === "Incorrect email or password") {
-        return next(new UnauthorizedError());
+        return next(new UnauthorizedError("Incorrect email or password"));
       }
       return next(err);
     });
@@ -102,10 +102,10 @@ const updateProfile = (req, res, next) => {
     .then((data) => res.status(200).send(data))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return next(new BadRequestError());
+        return next(new BadRequestError("Invalid data"));
       }
       if (err.name === "CastError" || err.name === "DocumentNotFoundError") {
-        return next(new NotFoundError());
+        return next(new NotFoundError("Not found"));
       }
       return next(err);
     });

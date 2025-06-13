@@ -1,6 +1,7 @@
 const router = require("express").Router();
 
 const {
+  validateUserUpdateInfo,
   validateSignUpBody,
   validateSignInBody,
 } = require("../middleware/validation");
@@ -18,6 +19,6 @@ router.post("/signin", validateSignInBody, login);
 router.post("/signup", validateSignUpBody, createUser);
 
 router.get("/users/me", auth, getCurrentUser);
-router.patch("/users/me", auth, updateProfile);
+router.patch("/users/me", validateUserUpdateInfo, auth, updateProfile);
 
 module.exports = router;

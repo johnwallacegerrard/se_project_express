@@ -21,7 +21,7 @@ module.exports.validateCardBody = celebrate({
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
 
-    weather: Joi.string().required().messages({
+    weather: Joi.string().valid("hot", "warm", "cold").required().messages({
       "string.empty": "The weather field must be selected",
     }),
   }),
@@ -45,8 +45,18 @@ module.exports.validateSignInBody = celebrate({
   }),
 });
 
+module.exports.validateUserUpdateInfo -
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      avatar: Joi.string().custom(validateURL).messages({
+        "string.uri": 'the "avatar" field must be a valid url',
+      }),
+    }),
+  });
+
 module.exports.validateId = celebrate({
   params: Joi.object().keys({
-    Id: Joi.string().alphanum().length(24),
+    id: Joi.string().alphanum().length(24),
   }),
 });
