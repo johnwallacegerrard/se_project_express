@@ -1,9 +1,7 @@
 const clothingItem = require("../models/clothingItem");
 const BadRequestError = require("../errors/BadRequestError");
-const UnauthorizedError = require("../errors/UnauthorizedError");
 const ForbiddenError = require("../errors/ForbiddenError");
 const NotFoundError = require("../errors/NotFoundError");
-const ConflictError = require("../errors/ConflictError");
 
 const getClothingItems = (req, res, next) => {
   clothingItem
@@ -43,7 +41,7 @@ const deleteClothingItem = (req, res, next) => {
     .orFail()
     .then((item) => {
       if (item.owner.toString() === req.user._id.toString()) {
-        clothingItem
+        return clothingItem
           .findByIdAndDelete(id)
           .orFail()
           .then((data) => res.status(200).send(data))
@@ -69,10 +67,10 @@ const deleteClothingItem = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return next(new NotFoundError());
+        return next(new NotFoundError("Not found"));
       }
       if (err.name === "CastError") {
-        return next(new BadRequestError());
+        return next(new BadRequestError("Invalid data"));
       }
       return next(err);
     });
@@ -93,7 +91,7 @@ const likeItem = (req, res, next) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return next(new NotFoundError());
+        return next(new NotFoundError("Not found"));
       }
       return next(err);
     });
@@ -110,7 +108,7 @@ const unlikeItem = (req, res, next) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return next(new NotFoundError());
+        return next(new NotFoundError("Not found"));
       }
       return next(err);
     });

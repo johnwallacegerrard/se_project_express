@@ -45,15 +45,14 @@ module.exports.validateSignInBody = celebrate({
   }),
 });
 
-module.exports.validateUserUpdateInfo -
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
-      avatar: Joi.string().custom(validateURL).messages({
-        "string.uri": 'the "avatar" field must be a valid url',
-      }),
+module.exports.validateUserUpdateInfo = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    avatar: Joi.string().custom(validateURL).messages({
+      "string.uri": 'the "avatar" field must be a valid url',
     }),
-  });
+  }),
+});
 
 module.exports.validateId = celebrate({
   params: Joi.object().keys({

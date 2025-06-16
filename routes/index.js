@@ -8,6 +8,6 @@ const clothingItemRouter = require("./clothingItems");
 
 router.use("/", userRouter);
 router.use("/items", clothingItemRouter);
-router.use((req, res) => next(new NotFoundError("Not found")));
+router.use((req, res, next) => next(new NotFoundError("Not found")));
 
 module.exports = router;

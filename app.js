@@ -8,11 +8,13 @@ const mongoose = require("mongoose");
 
 const cors = require("cors");
 
+const { errors } = require("celebrate");
+
 const mainRouter = require("./routes/index");
 
 const errorHandler = require("./middleware/error-handler");
 
-const { errors } = require("celebrate");
+
 
 const { requestLogger, errorLogger } = require("./middleware/Logger");
 
@@ -20,7 +22,11 @@ const { PORT = 3001 } = process.env;
 
 app.use(
   cors({
-    origin: ["https://w-t-w-r.strangled.net", "http://localhost:3000"],
+    origin: [
+      "https://w-t-w-r.strangled.net",
+      "https://api.w-t-w-r.strangled.net",
+      "http://localhost:3000",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
