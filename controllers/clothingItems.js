@@ -59,11 +59,8 @@ const deleteClothingItem = (req, res, next) => {
             }
             return next(err);
           });
-      } else {
-        return next(
-          new ForbiddenError("You cannot deleter another users item")
-        );
       }
+      return next(new ForbiddenError("You cannot deleter another users item"));
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
